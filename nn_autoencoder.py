@@ -9,7 +9,7 @@ import tensorflow_addons as tfa
 import tensorflow as tf
 from keras.models import  Model
 from keras import regularizers
-from keras.layers import Dense, Input, BatchNormalization
+from keras.layers import Dense, Input, BatchNormalization, Embedding, Flatten
 from keras.callbacks import EarlyStopping
 
 # Autoencoder model.
@@ -17,6 +17,10 @@ def nn_autoencoder(train_dataset, test_dataset, threshold):
 	# Autoencoder model.
 	input_dim = train_dataset['x'].shape[1]
 	input = Input(shape=(input_dim, ))
+
+	# embedding = Embedding(input_dim, input_dim)(input)
+	# embedding = Flatten()(embedding)
+
 	encode = Dense(input_dim//3*2, activation='relu',kernel_regularizer=regularizers.l1(0.01))(input)
 	encode = BatchNormalization()(encode)
 	encode = Dense(input_dim//3, activation='relu',kernel_regularizer=regularizers.l1(0.01))(encode)
@@ -32,9 +36,11 @@ def nn_autoencoder(train_dataset, test_dataset, threshold):
 
 	autoencoder = Model(input, decode)
 	early_stopping = EarlyStopping(monitor='loss', mode='min', patience=10)
-	autoencoder.compile(optimizer='adam',
-					loss='mse',
-					metrics=['accuracy', tfa.metrics.F1Score(input_dim)])
+	autoencoder.compile(
+		optimizer='adam',
+		loss='mse',
+		metrics=['accuracy']#, tfa.metrics.F1Score(input_dim)]
+	)
 
 
 	# Train model.
@@ -42,7 +48,6 @@ def nn_autoencoder(train_dataset, test_dataset, threshold):
 		epochs=100,
 		batch_size=128,
 		shuffle=True,
-		# validation_data=(test_dataset['x'], test_dataset['x']),
 		# callbacks = [early_stopping]
 	)
 

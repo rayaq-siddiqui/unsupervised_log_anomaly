@@ -53,6 +53,8 @@ def lstm_autoencoder(train_dataset, test_dataset, threshold):
 
     print(model.summary())
 
+    return model
+
     # plot the training losses
     fig, loss_ax  = plt.subplots(figsize=(14, 6), dpi=80)
     acc_ax = loss_ax.twinx()
